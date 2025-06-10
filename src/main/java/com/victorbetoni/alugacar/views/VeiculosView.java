@@ -37,16 +37,8 @@ public class VeiculosView extends javax.swing.JFrame {
 
         atualizarMarcas();
         atualizarModelos();
-
-        NumberFormat formatoMoeda = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-        formatoMoeda.setMinimumFractionDigits(2);
-
-        NumberFormatter formatter = new NumberFormatter(formatoMoeda);
-        formatter.setValueClass(Double.class);
-        formatter.setAllowsInvalid(false);
-        formatter.setMinimum(0.0);
-
-        fieldValorCompra.setFormatterFactory(new DefaultFormatterFactory(formatter));
+        
+        fieldValorCompra.setFormatterFactory(new DefaultFormatterFactory(Utils.MOEDA_FORMATTER));
         fieldValorCompra.setValue(0.0);
         fieldValorCompra.setColumns(15);
         fieldValorCompra.revalidate();
@@ -185,10 +177,11 @@ public class VeiculosView extends javax.swing.JFrame {
                     .addComponent(jLabel2)
                     .addComponent(jLabel3))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cboModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cboMarca, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cboMarca, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(cboTipo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(cboModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -255,11 +248,9 @@ public class VeiculosView extends javax.swing.JFrame {
         Marca marcaM = Marca.getByName(marca);
         Categoria cat = Categoria.getByName(categoria);
         
-        NumberFormat formatoMoeda = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
-        
-        Number numero = null;
+        Number numero;
         try {
-            numero = formatoMoeda.parse(valorCompra);
+            numero = Utils.MOEDA_FORMAT.parse(valorCompra);
         } catch(ParseException ex) {
             JOptionPane.showMessageDialog(null, "Valor de compra inválido.", "Aviso!", JOptionPane.WARNING_MESSAGE);
             return;
@@ -273,13 +264,13 @@ public class VeiculosView extends javax.swing.JFrame {
         
         switch(tipo) {
             case "Automóvel":
-                veiculo = new Automovel(ModeloAutomovel.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
+                veiculo = new Automovel(placa, ModeloAutomovel.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
                 break;
             case "Motocicleta":
-                veiculo = new Motocicleta(ModeloMotocicleta.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
+                veiculo = new Motocicleta(placa, ModeloMotocicleta.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
                 break;
             case "Van":
-                veiculo = new Van(ModeloVan.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
+                veiculo = new Van(placa, ModeloVan.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
                 break;
         }
         

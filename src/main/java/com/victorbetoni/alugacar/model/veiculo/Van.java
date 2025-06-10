@@ -19,8 +19,8 @@ public class Van extends Veiculo {
     
     private ModeloVan modelo;
 
-    public Van(ModeloVan modelo, Marca marca, Estado estado, Categoria categoria, Locacao locacao, double valorDeCompra, int ano) {
-        super(marca, estado, categoria, locacao, valorDeCompra, ano);
+    public Van(String placa, ModeloVan modelo, Marca marca, Estado estado, Categoria categoria, Locacao locacao, double valorDeCompra, int ano) {
+        super(placa, marca, estado, categoria, locacao, valorDeCompra, ano);
         this.modelo = modelo;
     }
     

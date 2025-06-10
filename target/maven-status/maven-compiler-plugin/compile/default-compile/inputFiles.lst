@@ -11,10 +11,13 @@ C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbeto
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\model\Locacao.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\model\veiculo\Automovel.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\model\veiculo\Motocicleta.java
+C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\model\veiculo\Van.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\model\veiculo\Veiculo.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\model\veiculo\VeiculoI.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\Utils.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\views\ClientesView.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\views\InicialView.java
+C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\views\LocarVeiculoView.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\views\tables\TabelaClientes.java
+C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\views\tables\TabelaVeiculos.java
 C:\Users\VictorHugoBetoni\Desktop\Arquivos\Alugacar\src\main\java\com\victorbetoni\alugacar\views\VeiculosView.java

@@ -25,13 +25,14 @@ public abstract class Veiculo implements VeiculoI {
     private double valorDeCompra;
     private int ano;
 
-    public Veiculo(Marca marca, Estado estado, Categoria categoria, Locacao locacao, double valorDeCompra, int ano) {
+    public Veiculo(String placa, Marca marca, Estado estado, Categoria categoria, Locacao locacao, double valorDeCompra, int ano) {
         this.marca = marca;
         this.estado = estado;
         this.categoria = categoria;
         this.locacao = locacao;
         this.valorDeCompra = valorDeCompra;
         this.ano = ano;
+        this.placa = placa;
     }
     
     @Override
