@@ -48,6 +48,11 @@ public class LocarVeiculoView extends javax.swing.JFrame {
                 VeiculoI v = ((TabelaVeiculos) tblVeiculos.getModel()).getVeiculos().get(tblVeiculos.getSelectedRow());
                 veiculo.set(v);
                 this.lblPrecoDiaria.setText("Total: " + Utils.formatarMoeda(v.getValorDiariaLocacao()));
+                if(Utils.allFilled(fieldDiasLocados.getText())) {
+                    int dias = Integer.parseInt(fieldDiasLocados.getText());
+                    this.lblTotal.setText(String.format("Total: %s", Utils.formatarMoeda(dias*veiculo.get().getValorDiariaLocacao())));
+                    this.lblTotal.updateUI();
+                }
             }
         });
         
@@ -216,6 +221,11 @@ public class LocarVeiculoView extends javax.swing.JFrame {
         fieldDataDevolucao.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT))));
 
         fieldDiasLocados.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
+        fieldDiasLocados.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                fieldDiasLocadosKeyTyped(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -348,30 +358,13 @@ public class LocarVeiculoView extends javax.swing.JFrame {
         atualizarClientes();
     }//GEN-LAST:event_btnBuscarClienteMouseClicked
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ReflectiveOperationException | javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+    private void fieldDiasLocadosKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_fieldDiasLocadosKeyTyped
+        int diasLocados = Integer.parseInt(fieldDiasLocados.getText());
+        if(veiculo.get() != null) {
+            this.lblTotal.setText(String.format("Total: %s", Utils.formatarMoeda(diasLocados*veiculo.get().getValorDiariaLocacao())));
+            this.lblTotal.updateUI();
         }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(() -> new LocarVeiculoView().setVisible(true));
-    }
+    }//GEN-LAST:event_fieldDiasLocadosKeyTyped
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscarCliente;

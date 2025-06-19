@@ -1,5 +1,6 @@
 com\victorbetoni\alugacar\GerenciadorVeiculos.class
 com\victorbetoni\alugacar\model\veiculo\Automovel.class
+com\victorbetoni\alugacar\views\LocarVeiculoView$3.class
 com\victorbetoni\alugacar\enums\ModeloVan.class
 com\victorbetoni\alugacar\views\InicialView$3.class
 com\victorbetoni\alugacar\views\ClientesView$6.class
