@@ -13,10 +13,16 @@ import com.victorbetoni.alugacar.model.veiculo.Van;
 import com.victorbetoni.alugacar.model.veiculo.VeiculoI;
 import com.victorbetoni.alugacar.views.tables.TabelaClientes;
 import com.victorbetoni.alugacar.views.tables.TabelaVeiculos;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
+import javax.swing.JFormattedTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.text.DateFormatter;
+import javax.swing.text.DefaultFormatterFactory;
+import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
 
 /**
@@ -41,7 +47,19 @@ public class LocarVeiculoView extends javax.swing.JFrame {
         
         tblVeiculos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblClientes.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
+       
+        fieldDataLocacao.setColumns(10);
+
+        try {
+            fieldDataLocacao.setColumns(10);
+            DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+            df.setLenient(false);
+            DateFormatter dateFormatter = new DateFormatter(df);
+            fieldDataLocacao.setFormatterFactory(new DefaultFormatterFactory(dateFormatter));
+            fieldDataLocacao.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
         tblVeiculos.getSelectionModel().addListSelectionListener(tbl -> {
             if(!tbl.getValueIsAdjusting() && tblVeiculos.getSelectedRow() != -1) {
                 System.out.println("Passou");
@@ -130,9 +148,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         fieldDataLocacao = new javax.swing.JFormattedTextField();
-        fieldDataDevolucao = new javax.swing.JFormattedTextField();
         fieldDiasLocados = new javax.swing.JFormattedTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -213,13 +229,6 @@ public class LocarVeiculoView extends javax.swing.JFrame {
 
         jLabel10.setText("Dias locados");
 
-        jLabel11.setText("Data de devolução");
-
-        fieldDataLocacao.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT))));
-
-        fieldDataDevolucao.setEditable(false);
-        fieldDataDevolucao.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT))));
-
         fieldDiasLocados.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.NumberFormatter(new java.text.DecimalFormat("#0"))));
         fieldDiasLocados.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
@@ -289,11 +298,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                             .addComponent(jLabel10)
-                                            .addComponent(fieldDiasLocados, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel11)
-                                            .addComponent(fieldDataDevolucao, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                            .addComponent(fieldDiasLocados, javax.swing.GroupLayout.PREFERRED_SIZE, 126, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addGap(0, 0, Short.MAX_VALUE)))))
                 .addContainerGap())
         );
@@ -329,12 +334,10 @@ public class LocarVeiculoView extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jLabel10)
-                    .addComponent(jLabel11))
+                    .addComponent(jLabel10))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(fieldDataLocacao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fieldDataDevolucao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fieldDiasLocados, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(lblPrecoDiaria)
@@ -359,7 +362,12 @@ public class LocarVeiculoView extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBuscarClienteMouseClicked
 
     private void fieldDiasLocadosKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_fieldDiasLocadosKeyTyped
-        int diasLocados = Integer.parseInt(fieldDiasLocados.getText());
+        int diasLocados = 0;
+        try {
+            diasLocados = Integer.parseInt(fieldDiasLocados.getText());
+        } catch (Exception ex) {
+            fieldDiasLocados.setText(fieldDiasLocados.getText().replaceAll("[^0-9]", ""));
+        }
         if(veiculo.get() != null) {
             this.lblTotal.setText(String.format("Total: %s", Utils.formatarMoeda(diasLocados*veiculo.get().getValorDiariaLocacao())));
             this.lblTotal.updateUI();
@@ -372,7 +380,6 @@ public class LocarVeiculoView extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> cboCategoria;
     private javax.swing.JComboBox<String> cboMarca;
     private javax.swing.JComboBox<String> cboTipo;
-    private javax.swing.JFormattedTextField fieldDataDevolucao;
     private javax.swing.JFormattedTextField fieldDataLocacao;
     private javax.swing.JFormattedTextField fieldDiasLocados;
     private javax.swing.JTextField filtroCPF;
@@ -382,7 +389,6 @@ public class LocarVeiculoView extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
