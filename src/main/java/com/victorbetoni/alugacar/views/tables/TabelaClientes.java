@@ -45,13 +45,25 @@ public class TabelaClientes extends AbstractTableModel {
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         Cliente cliente = clientes.get(rowIndex);
-        return switch (columnIndex) {
-            case 0 -> cliente.getNome() + " " + cliente.getSobrenome();
-            case 1 -> cliente.getCpf();
-            case 2 -> cliente.getRg();
-            case 3 -> String.format("%s - %d, %s, %s - %s", cliente.getRua(), cliente.getNumero(), cliente.getBairro(), cliente.getCidade(), cliente.getEstado());
-            default -> null;
-        };
+
+        switch (columnIndex) {
+            case 0:
+                return cliente.getNome() + " " + cliente.getSobrenome();
+            case 1:
+                return cliente.getCpf();
+            case 2:
+                return cliente.getRg();
+            case 3:
+                return String.format("%s - %d, %s, %s - %s",
+                        cliente.getRua(),
+                        cliente.getNumero(),
+                        cliente.getBairro(),
+                        cliente.getCidade(),
+                        cliente.getEstado());
+            default:
+                return null;
+        }
     }
+
 
 }

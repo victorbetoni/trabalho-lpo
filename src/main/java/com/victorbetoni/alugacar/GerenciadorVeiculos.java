@@ -9,6 +9,7 @@ import com.victorbetoni.alugacar.model.veiculo.Automovel;
 import com.victorbetoni.alugacar.model.veiculo.VeiculoI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -27,11 +28,11 @@ public class GerenciadorVeiculos {
     }
     
     public List<VeiculoI> buscarAutomoveis() {
-        return veiculos.stream().filter(x -> x instanceof Automovel).toList();
+        return veiculos.stream().filter(x -> x instanceof Automovel).collect(Collectors.toList());
     }
     
     public List<Locacao> buscarLocacoes() {
-        return veiculos.stream().filter(x -> x.getLocacao() != null).map(x -> x.getLocacao()).toList();
+        return veiculos.stream().filter(x -> x.getLocacao() != null).map(x -> x.getLocacao()).collect(Collectors.toList());
     }
     
 }

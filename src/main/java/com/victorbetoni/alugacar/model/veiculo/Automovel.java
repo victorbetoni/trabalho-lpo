@@ -24,13 +24,17 @@ public class Automovel extends Veiculo {
     }
     
     @Override
-    public double getValorDiariaLocacao() {
-        return switch (this.getCategoria()) {
-            case Categoria.POPULAR -> 100D;
-            case Categoria.INTERMEDIARIO -> 300D;
-            default -> 450D;
-        };
+public double getValorDiariaLocacao() {
+    switch (this.getCategoria()) {
+        case POPULAR:
+            return 100D;
+        case INTERMEDIARIO:
+            return 300D;
+        default:
+            return 450D;
     }
+}
+
 
     public ModeloAutomovel getModelo() {
         return modelo;

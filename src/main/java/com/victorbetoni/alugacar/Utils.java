@@ -5,6 +5,8 @@
 package com.victorbetoni.alugacar;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.stream.Stream;
 import javax.swing.JTextField;
@@ -59,6 +61,18 @@ public class Utils {
     
     public static String formatarMoeda(double numero) {
         return MOEDA_FORMAT.format(numero);
+    }
+    
+    public static boolean dataValida(String dataStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+
+        try {
+            Date data = sdf.parse(dataStr);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
     
 }

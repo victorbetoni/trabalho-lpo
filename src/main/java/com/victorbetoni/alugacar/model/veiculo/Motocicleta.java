@@ -21,12 +21,16 @@ public class Motocicleta extends Veiculo {
     
     @Override
     public double getValorDiariaLocacao() {
-        return switch (this.getCategoria()) {
-            case Categoria.POPULAR -> 70D;
-            case Categoria.INTERMEDIARIO -> 200D;
-            default -> 350D;
-        };
+        switch (this.getCategoria()) {
+            case POPULAR:
+                return 70D;
+            case INTERMEDIARIO:
+                return 200D;
+            default:
+                return 350D;
+        }
     }
+
     
     public ModeloMotocicleta getModelo() {
         return modelo;

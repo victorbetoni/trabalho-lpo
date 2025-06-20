@@ -7,6 +7,7 @@ package com.victorbetoni.alugacar.enums;
 import static com.victorbetoni.alugacar.enums.ModeloAutomovel.values;
 import static com.victorbetoni.alugacar.enums.ModeloVan.values;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -55,7 +56,7 @@ public enum ModeloMotocicleta {
     }
     
     public List<ModeloMotocicleta> buscarPorMarca(Marca marca) {
-        return Stream.of(values()).filter(x -> x.marca == marca).toList();
+        return Stream.of(values()).filter(x -> x.marca == marca).collect(Collectors.toList());
     }
     
     public static ModeloMotocicleta getByName(String nome) {

@@ -7,6 +7,7 @@ import com.victorbetoni.alugacar.model.Locacao;
 import com.victorbetoni.alugacar.views.tables.TabelaClientes;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumnModel;
@@ -530,7 +531,7 @@ public class ClientesView extends javax.swing.JFrame {
 
         List<Locacao> locacoesAtivas = Alugacar.getGerenciadorVeiculos().buscarLocacoes()
                 .stream().filter(x -> x.getCliente().getCpf().equalsIgnoreCase(selecionado.getCpf()))
-                .toList();
+                .collect(Collectors.toList());
 
         if (!locacoesAtivas.isEmpty()) {
             JOptionPane.showMessageDialog(null, "Não é permitido excluir clientes com locações ativas.", "Aviso!", JOptionPane.WARNING_MESSAGE);

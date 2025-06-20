@@ -46,7 +46,7 @@ public class VeiculosView extends javax.swing.JFrame {
 
         MaskFormatter placaMask = null;
         try {
-            placaMask = new MaskFormatter("UUUU-#####");
+            placaMask = new MaskFormatter("UUUU-####");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -280,7 +280,7 @@ public class VeiculosView extends javax.swing.JFrame {
         }
         
         Alugacar.getGerenciadorVeiculos().adicionarVeiculo(veiculo);
-        JOptionPane.showMessageDialog(null, "Cliente excluído com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Veículo cadastrado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnCadastrarMouseClicked
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked

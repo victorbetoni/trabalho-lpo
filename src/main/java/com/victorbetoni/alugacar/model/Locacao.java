@@ -1,5 +1,7 @@
 package com.victorbetoni.alugacar.model;
 
+import com.victorbetoni.alugacar.model.veiculo.Veiculo;
+import com.victorbetoni.alugacar.model.veiculo.VeiculoI;
 import java.util.Calendar;
 
 /**
@@ -18,6 +20,10 @@ public class Locacao {
         this.valor = valor;
         this.data = data;
         this.cliente = cliente;
+    }
+
+    public int getDias() {
+        return dias;
     }
 
     public double getValor() {

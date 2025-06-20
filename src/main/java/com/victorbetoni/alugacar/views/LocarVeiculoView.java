@@ -7,6 +7,7 @@ import com.victorbetoni.alugacar.enums.Categoria;
 import com.victorbetoni.alugacar.enums.Estado;
 import com.victorbetoni.alugacar.enums.Marca;
 import com.victorbetoni.alugacar.model.Cliente;
+import com.victorbetoni.alugacar.model.Locacao;
 import com.victorbetoni.alugacar.model.veiculo.Automovel;
 import com.victorbetoni.alugacar.model.veiculo.Motocicleta;
 import com.victorbetoni.alugacar.model.veiculo.Van;
@@ -16,14 +17,19 @@ import com.victorbetoni.alugacar.views.tables.TabelaVeiculos;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
+import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
+import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.text.DateFormatter;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
+import java.util.Date;
+import java.util.stream.Collectors;
 
 /**
  * @author VictorHugoBetoni
@@ -51,18 +57,14 @@ public class LocarVeiculoView extends javax.swing.JFrame {
         fieldDataLocacao.setColumns(10);
 
         try {
-            fieldDataLocacao.setColumns(10);
-            DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-            df.setLenient(false);
-            DateFormatter dateFormatter = new DateFormatter(df);
-            fieldDataLocacao.setFormatterFactory(new DefaultFormatterFactory(dateFormatter));
-            fieldDataLocacao.setFocusLostBehavior(JFormattedTextField.COMMIT_OR_REVERT);
+             MaskFormatter formatter = new MaskFormatter("##/##/####");
+            formatter.setPlaceholderCharacter('_');
+            formatter.install(fieldDataLocacao);
         } catch(Exception ex) {
             ex.printStackTrace();
         }
         tblVeiculos.getSelectionModel().addListSelectionListener(tbl -> {
             if(!tbl.getValueIsAdjusting() && tblVeiculos.getSelectedRow() != -1) {
-                System.out.println("Passou");
                 VeiculoI v = ((TabelaVeiculos) tblVeiculos.getModel()).getVeiculos().get(tblVeiculos.getSelectedRow());
                 veiculo.set(v);
                 this.lblPrecoDiaria.setText("Total: " + Utils.formatarMoeda(v.getValorDiariaLocacao()));
@@ -102,7 +104,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
                 .filter(x -> cboCategoria.getSelectedIndex() == 0 || x.getCategoria() == Categoria.getByName(cboCategoria.getSelectedItem().toString()))
                 .filter(x -> cboMarca.getSelectedIndex() == 0 || x.getMarca() == Marca.getByName(cboMarca.getSelectedItem().toString()))
                 .filter(x -> x.getEstado() == Estado.DISPONIVEL || x.getEstado() == Estado.NOVO)
-                .toList();
+                .collect(Collectors.toList());
         
         tblVeiculos.setModel(new TabelaVeiculos(veiculos));
     }
@@ -113,7 +115,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
                 .filter(x -> x.getCpf().replaceAll("[^a-zA-Z0-9]", "").contains(filtroCPF.getText().replaceAll("[^a-zA-Z0-9]", "")))
                 .filter(x -> x.getNome().contains(filtroNome.getText()))
                 .filter(x -> x.getSobrenome().contains(filtroSobrenome.getText()))
-                .toList();
+                .collect(Collectors.toList());
         tblClientes.setModel(new TabelaClientes(clientes));
     }
     
@@ -145,7 +147,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
         lblPrecoDiaria = new javax.swing.JLabel();
         lblTotal = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        btnLocar = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jLabel10 = new javax.swing.JLabel();
         fieldDataLocacao = new javax.swing.JFormattedTextField();
@@ -223,9 +225,19 @@ public class LocarVeiculoView extends javax.swing.JFrame {
 
         jLabel9.setText("Data de locação");
 
-        jButton1.setText("Locar");
+        btnLocar.setText("Locar");
+        btnLocar.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnLocarMouseClicked(evt);
+            }
+        });
 
         jButton2.setText("Voltar");
+        jButton2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton2MouseClicked(evt);
+            }
+        });
 
         jLabel10.setText("Dias locados");
 
@@ -249,7 +261,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
                                 .addComponent(lblPrecoDiaria))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(312, 312, 312)
-                                .addComponent(jButton1)
+                                .addComponent(btnLocar)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jButton2)))
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -345,7 +357,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
                 .addComponent(lblTotal)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
+                    .addComponent(btnLocar)
                     .addComponent(jButton2))
                 .addContainerGap())
         );
@@ -374,9 +386,55 @@ public class LocarVeiculoView extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_fieldDiasLocadosKeyTyped
 
+    private void btnLocarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLocarMouseClicked
+        if(veiculo.get() == null) {
+            JOptionPane.showMessageDialog(null, "Selecione um veículo", "AVISO", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if(cliente.get() == null) {
+            JOptionPane.showMessageDialog(null, "Selecione um cliente", "AVISO", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if(!Utils.dataValida(fieldDataLocacao.getText())) {
+            JOptionPane.showMessageDialog(null, "Selecione uma data de locação válida.", "AVISO", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        if(!Utils.isInteger(fieldDiasLocados.getText())) {
+            JOptionPane.showMessageDialog(null, "Digite uma quantidade de dias válida.", "AVISO", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int dias = Integer.parseInt(fieldDiasLocados.getText());
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        sdf.setLenient(false);
+        
+        Calendar c = null;
+        
+        try {
+            Date date = sdf.parse(fieldDataLocacao.getText());
+            c = Calendar.getInstance();
+            c.setTime(date);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "ERRO", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        veiculo.get().locar(dias, c, cliente.get());
+        JOptionPane.showMessageDialog(null, "Veículo locado com sucesso.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+        atualizarVeiculos();
+        fieldDiasLocados.setText("1");
+        fieldDataLocacao.setText("");
+        
+    }//GEN-LAST:event_btnLocarMouseClicked
+
+    private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
+        this.dispose();
+    }//GEN-LAST:event_jButton2MouseClicked
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscarCliente;
     private javax.swing.JButton btnBuscarVeiculo;
+    private javax.swing.JButton btnLocar;
     private javax.swing.JComboBox<String> cboCategoria;
     private javax.swing.JComboBox<String> cboMarca;
     private javax.swing.JComboBox<String> cboTipo;
@@ -385,7 +443,6 @@ public class LocarVeiculoView extends javax.swing.JFrame {
     private javax.swing.JTextField filtroCPF;
     private javax.swing.JTextField filtroNome;
     private javax.swing.JTextField filtroSobrenome;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
