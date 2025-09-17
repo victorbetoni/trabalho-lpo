@@ -16,7 +16,7 @@ import java.util.Calendar;
  * @author VictorHugoBetoni
  */
 public abstract class Veiculo implements VeiculoI {
-    
+
     private String placa;
     private Marca marca;
     private Estado estado;

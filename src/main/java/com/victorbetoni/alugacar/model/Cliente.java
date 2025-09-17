@@ -6,10 +6,6 @@ package com.victorbetoni.alugacar.model;
 
 import java.util.Calendar;
 
-/**
- *
- * @author VictorHugoBetoni
- */
 public class Cliente {
  
     private String nome;

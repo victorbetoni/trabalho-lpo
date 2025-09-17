@@ -1,32 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.victorbetoni.alugacar.views;
 
 import com.victorbetoni.alugacar.Alugacar;
-import com.victorbetoni.alugacar.Utils;
 import com.victorbetoni.alugacar.enums.Categoria;
 import com.victorbetoni.alugacar.enums.Estado;
 import com.victorbetoni.alugacar.enums.Marca;
-import com.victorbetoni.alugacar.model.veiculo.Automovel;
-import com.victorbetoni.alugacar.model.veiculo.Motocicleta;
-import com.victorbetoni.alugacar.model.veiculo.Van;
 import com.victorbetoni.alugacar.model.veiculo.VeiculoI;
 import com.victorbetoni.alugacar.views.tables.TabelaVeiculoLocado;
-import com.victorbetoni.alugacar.views.tables.TabelaVeiculos;
+import java.awt.TrayIcon;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author VictorHugoBetoni
- */
 public class DevolverVeiculoView extends javax.swing.JFrame {
-    
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DevolverVeiculoView.class.getName());
 
     private AtomicReference<VeiculoI> veiculo = new AtomicReference<>();
     
@@ -43,11 +30,14 @@ public class DevolverVeiculoView extends javax.swing.JFrame {
     
     public void atualizarLocacoes() {
         tblLocacoes.removeAll();
-        List<VeiculoI> veiculos = Alugacar.getGerenciadorVeiculos().getVeiculos().stream()
-                .filter(x -> x.getEstado() == Estado.LOCADO)
-                .collect(Collectors.toList());
         
-        tblLocacoes.setModel(new TabelaVeiculoLocado(veiculos));
+        try {
+            List<VeiculoI> veiculos = Alugacar.getGerenciadorVeiculos().buscarVeiculos(-1, null, null, null, null, true);
+            tblLocacoes.setModel(new TabelaVeiculoLocado(veiculos));
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -139,13 +129,17 @@ public class DevolverVeiculoView extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        if(veiculo.get() == null) {
-            JOptionPane.showMessageDialog(null, "Selecione uma locação", "ERRO", JOptionPane.ERROR);
-            return;
+        try {
+            if(veiculo.get() == null) {
+                JOptionPane.showMessageDialog(null, "Selecione uma locação", "ERRO", JOptionPane.ERROR);
+                return;
+            }
+            Alugacar.getGerenciadorVeiculos().devolverVeiculo(veiculo.get());
+            JOptionPane.showMessageDialog(null, "Veículo devolvido com sucesso.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            atualizarLocacoes();
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-        veiculo.get().devolver();
-        JOptionPane.showMessageDialog(null, "Veículo devolvido com sucesso.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-        atualizarLocacoes();
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked

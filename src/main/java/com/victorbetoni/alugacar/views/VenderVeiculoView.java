@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package com.victorbetoni.alugacar.views;
 
 import com.victorbetoni.alugacar.Alugacar;
@@ -15,18 +11,14 @@ import com.victorbetoni.alugacar.model.veiculo.Automovel;
 import com.victorbetoni.alugacar.model.veiculo.Motocicleta;
 import com.victorbetoni.alugacar.model.veiculo.Van;
 import com.victorbetoni.alugacar.model.veiculo.VeiculoI;
-import com.victorbetoni.alugacar.views.tables.TabelaVeiculoLocado;
 import com.victorbetoni.alugacar.views.tables.TabelaVeiculos;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author VictorHugoBetoni
- */
 public class VenderVeiculoView extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(VenderVeiculoView.class.getName());
@@ -38,7 +30,7 @@ public class VenderVeiculoView extends javax.swing.JFrame {
         fieldMarca.removeAllItems();
         fieldMarca.addItem("Todos");
         fieldMarca.setSelectedIndex(0);
-        Stream.of(Marca.values()).map(Marca::getNome).forEach(fieldMarca::addItem);
+        Stream.of(Marca.values()).map(Marca::toString).forEach(fieldMarca::addItem);
         
         fieldModelo.addItem("Todos");
         atualizarModelos();
@@ -64,17 +56,17 @@ public class VenderVeiculoView extends javax.swing.JFrame {
         if(qualquerMarca) {
             Stream.concat(
                 Stream.concat(
-                        (qualquerTipo || tipo.equals("Automóvel") ? Stream.of(ModeloAutomovel.values()).map(ModeloAutomovel::getModelo) : Stream.empty()), 
-                        (qualquerTipo || tipo.equals("Motocicleta") ? Stream.of(ModeloMotocicleta.values()).map(ModeloMotocicleta::getModelo) : Stream.empty())), 
-                tipo.equals("Todos") || tipo.equals("Van") ? Stream.of(ModeloVan.values()).map(ModeloVan::getModelo) : Stream.empty()
+                        (qualquerTipo || tipo.equals("Automóvel") ? Stream.of(ModeloAutomovel.values()).map(ModeloAutomovel::toString) : Stream.empty()), 
+                        (qualquerTipo || tipo.equals("Motocicleta") ? Stream.of(ModeloMotocicleta.values()).map(ModeloMotocicleta::toString) : Stream.empty())), 
+                tipo.equals("Todos") || tipo.equals("Van") ? Stream.of(ModeloVan.values()).map(ModeloVan::toString) : Stream.empty()
             ).forEach(fieldModelo::addItem); 
         } else {
-            Marca m = Marca.getByName(fieldMarca.getSelectedItem().toString());
+            Marca m = Marca.valueOf(fieldMarca.getSelectedItem().toString());
              Stream.concat(
                 Stream.concat(
-                        (tipo.equals("Todos") || tipo.equals("Automóvel") ? Stream.of(ModeloAutomovel.values()).filter(x -> x.getMarca() == m).map(ModeloAutomovel::getModelo) : Stream.empty()), 
-                        (tipo.equals("Todos") || tipo.equals("Motocicleta") ? Stream.of(ModeloMotocicleta.values()).filter(x -> x.getMarca() == m).map(ModeloMotocicleta::getModelo) : Stream.empty())), 
-                tipo.equals("Todos") || tipo.equals("Van") ? Stream.of(ModeloVan.values()).filter(x -> x.getMarca() == m).map(ModeloVan::getModelo) : Stream.empty()
+                        (tipo.equals("Todos") || tipo.equals("Automóvel") ? Stream.of(ModeloAutomovel.values()).filter(x -> x.getMarca() == m).map(ModeloAutomovel::toString) : Stream.empty()), 
+                        (tipo.equals("Todos") || tipo.equals("Motocicleta") ? Stream.of(ModeloMotocicleta.values()).filter(x -> x.getMarca() == m).map(ModeloMotocicleta::toString) : Stream.empty())), 
+                tipo.equals("Todos") || tipo.equals("Van") ? Stream.of(ModeloVan.values()).filter(x -> x.getMarca() == m).map(ModeloVan::toString) : Stream.empty()
             ).forEach(fieldModelo::addItem); 
         }
     }
@@ -82,26 +74,18 @@ public class VenderVeiculoView extends javax.swing.JFrame {
     public void atualizarVeiculos() {
         tblVeiculos.removeAll();
         String modeloSelecionado = fieldModelo.getSelectedItem().toString();
-        List<VeiculoI> veiculos = Alugacar.getGerenciadorVeiculos().getVeiculos().stream()
-                .filter(x -> {
-                    if(fieldTipo.getSelectedIndex() == 0) {
-                        return true;
-                    }
-                    String selectedItem = fieldTipo.getSelectedItem().toString();
-                    if(selectedItem.equalsIgnoreCase("Automóvel")) {
-                        return x instanceof Automovel;
-                    }
-                    if(selectedItem.equalsIgnoreCase("Van")) {
-                        return x instanceof Van;
-                    }
-                    return x instanceof Motocicleta;
-                })
-                .filter(x -> fieldMarca.getSelectedIndex() == 0 || x.getMarca() == Marca.getByName(fieldMarca.getSelectedItem().toString()))
-                .filter(x -> fieldModelo.getSelectedIndex() == 0 || extrairModelo(x).equalsIgnoreCase(modeloSelecionado))
-                .filter(x -> x.getEstado() == Estado.DISPONIVEL || x.getEstado() == Estado.NOVO)
-                .collect(Collectors.toList());
         
-        tblVeiculos.setModel(new TabelaVeiculos(veiculos));
+        try {
+            List<VeiculoI> veiculos = Alugacar.getGerenciadorVeiculos().buscarVeiculos(
+                fieldTipo.getSelectedIndex() == 0 ? -1 : fieldTipo.getSelectedIndex(), 
+                fieldMarca.getSelectedIndex() == 0 ? null : Marca.valueOf(fieldMarca.getSelectedItem().toString()),
+                null, null, modeloSelecionado.equalsIgnoreCase("Todos") ? null : modeloSelecionado, false, false);
+      
+            tblVeiculos.setModel(new TabelaVeiculos(veiculos));
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -130,7 +114,7 @@ public class VenderVeiculoView extends javax.swing.JFrame {
             }
         });
 
-        fieldTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Automóvel", "Motocicleta", "Van" }));
+        fieldTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Motocicleta", "Automóvel", "Van" }));
         fieldTipo.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 fieldTipoMouseClicked(evt);
@@ -254,13 +238,18 @@ public class VenderVeiculoView extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2MouseClicked
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        if(veiculo.get() == null) {
-            JOptionPane.showMessageDialog(null, "Selecione um veiculo", "ERRO", JOptionPane.ERROR);
-            return;
+        try {
+            if(veiculo.get() == null) {
+                JOptionPane.showMessageDialog(null, "Selecione um veiculo", "ERRO", JOptionPane.ERROR);
+                return;
+            }
+            Alugacar.getGerenciadorVeiculos().venderVeiculo(veiculo.get());
+            JOptionPane.showMessageDialog(null, "Veículo vendido!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            atualizarVeiculos();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-        veiculo.get().vender();
-        JOptionPane.showMessageDialog(null, "Veículo vendido!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-        atualizarVeiculos();
     }//GEN-LAST:event_jButton1MouseClicked
 
     private void btnBuscarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBuscarMouseClicked

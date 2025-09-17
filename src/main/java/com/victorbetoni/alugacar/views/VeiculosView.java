@@ -12,6 +12,7 @@ import com.victorbetoni.alugacar.model.veiculo.Automovel;
 import com.victorbetoni.alugacar.model.veiculo.Motocicleta;
 import com.victorbetoni.alugacar.model.veiculo.Van;
 import com.victorbetoni.alugacar.model.veiculo.Veiculo;
+import java.sql.SQLException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.text.NumberFormat;
@@ -240,47 +241,47 @@ public class VeiculosView extends javax.swing.JFrame {
             return;
         }
         
-        if(Alugacar.getGerenciadorVeiculos().buscarAutomoveis().stream().anyMatch(x -> x.getPlaca().equalsIgnoreCase(placa))) {
-            JOptionPane.showMessageDialog(null, "Já existe um veículo com mesma placa cadastrado.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        Marca marcaM = Marca.getByName(marca);
-        Categoria cat = Categoria.getByName(categoria);
-        
-        Number numero;
         try {
-            numero = Utils.MOEDA_FORMAT.parse(valorCompra);
-        } catch(ParseException ex) {
-            JOptionPane.showMessageDialog(null, "Valor de compra inválido.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
+            
+            Marca marcaM = Marca.getByName(marca);
+            Categoria cat = Categoria.getByName(categoria);
+
+            Number numero;
+            try {
+                numero = Utils.MOEDA_FORMAT.parse(valorCompra);
+            } catch(ParseException ex) {
+                JOptionPane.showMessageDialog(null, "Valor de compra inválido.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            double valor = numero.doubleValue();
+
+            int anoI = Integer.parseInt(ano);
+
+            Veiculo veiculo = null;
+
+            switch(tipo) {
+                case "Automóvel":
+                    veiculo = new Automovel(placa, ModeloAutomovel.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
+                    break;
+                case "Motocicleta":
+                    veiculo = new Motocicleta(placa, ModeloMotocicleta.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
+                    break;
+                case "Van":
+                    veiculo = new Van(placa, ModeloVan.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
+                    break;
+            }
+
+            if (veiculo == null) {
+                JOptionPane.showMessageDialog(null, "Algo deu errado. Tente novamente mais tarde.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Alugacar.getGerenciadorVeiculos().adicionarVeiculo(veiculo);
+            JOptionPane.showMessageDialog(null, "Veículo cadastrado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-        
-        double valor = numero.doubleValue();
-        
-        int anoI = Integer.parseInt(ano);
-        
-        Veiculo veiculo = null;
-        
-        switch(tipo) {
-            case "Automóvel":
-                veiculo = new Automovel(placa, ModeloAutomovel.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
-                break;
-            case "Motocicleta":
-                veiculo = new Motocicleta(placa, ModeloMotocicleta.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
-                break;
-            case "Van":
-                veiculo = new Van(placa, ModeloVan.getByName(modelo), marcaM, Estado.NOVO, cat, null, valor, anoI);
-                break;
-        }
-        
-        if (veiculo == null) {
-            JOptionPane.showMessageDialog(null, "Algo deu errado. Tente novamente mais tarde.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        
-        Alugacar.getGerenciadorVeiculos().adicionarVeiculo(veiculo);
-        JOptionPane.showMessageDialog(null, "Veículo cadastrado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnCadastrarMouseClicked
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
@@ -307,6 +308,10 @@ public class VeiculosView extends javax.swing.JFrame {
 
     private void atualizarModelos() {
         cboModelo.removeAllItems();
+        
+        if(cboMarca.getSelectedItem() == null) {
+            return;
+        }
 
         Marca m = Marca.getByName(cboMarca.getSelectedItem().toString());
 

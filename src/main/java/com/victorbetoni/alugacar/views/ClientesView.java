@@ -84,8 +84,12 @@ public class ClientesView extends javax.swing.JFrame {
     }
 
     public void atualizarTabela() {
-        this.tabela = new TabelaClientes(Alugacar.getGerenciadorClientes().getClientes());
-        tabelaClientes.setModel(tabela);
+        try {
+            this.tabela = new TabelaClientes(Alugacar.getGerenciadorClientes().buscarClientes(null, null, null, null));
+            tabelaClientes.setModel(tabela);
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -492,55 +496,61 @@ public class ClientesView extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCadastrarClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnCadastrarClienteMouseClicked
-        String nome = fieldNome.getText();
-        String sobrenome = fieldSobrenome.getText();
-        String cpf = fieldCPF.getText();
-        String rg = fieldRG.getText();
-        String rua = fieldRua.getText();
-        String bairro = fieldBairro.getText();
-        String numero = fieldNumero.getText();
-        String estado = fieldEstado.getSelectedItem().toString();
-        String cidade = fieldCidade.getText();
+        try {
+            String nome = fieldNome.getText();
+            String sobrenome = fieldSobrenome.getText();
+            String cpf = fieldCPF.getText();
+            String rg = fieldRG.getText();
+            String rua = fieldRua.getText();
+            String bairro = fieldBairro.getText();
+            String numero = fieldNumero.getText();
+            String estado = fieldEstado.getSelectedItem().toString();
+            String cidade = fieldCidade.getText();
 
-        if (!Utils.allFilled(nome, sobrenome, cpf, rg, rua, bairro, numero, estado, cidade)) {
-            JOptionPane.showMessageDialog(null, "Preencha todos os campos.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
+            if (!Utils.allFilled(nome, sobrenome, cpf, rg, rua, bairro, numero, estado, cidade)) {
+                JOptionPane.showMessageDialog(null, "Preencha todos os campos.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (!Utils.isInteger(numero)) {
+                JOptionPane.showMessageDialog(null, "Número do endereço inválido.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Cliente cliente = new Cliente(nome, sobrenome, rg, cpf, rua, bairro, estado, cidade, Integer.parseInt(numero));
+            Utils.clearTextFields(fieldNome, fieldSobrenome, fieldCPF, fieldRG, fieldRua, fieldBairro, fieldNumero, fieldCidade);
+            Alugacar.getGerenciadorClientes().adicionarCliente(cliente);
+            JOptionPane.showMessageDialog(null, "Cliente criado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-
-        if (!Utils.isInteger(numero)) {
-            JOptionPane.showMessageDialog(null, "Número do endereço inválido.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        Cliente cliente = new Cliente(nome, sobrenome, rg, cpf, rua, bairro, estado, cidade, Integer.parseInt(numero));
-        Utils.clearTextFields(fieldNome, fieldSobrenome, fieldCPF, fieldRG, fieldRua, fieldBairro, fieldNumero, fieldCidade);
-        Alugacar.getGerenciadorClientes().adicionarCliente(cliente);
-        JOptionPane.showMessageDialog(null, "Cliente criado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_btnCadastrarClienteMouseClicked
 
     private void btnExcluirClienteMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExcluirClienteMouseClicked
 
-        int index = tabelaClientes.getSelectedRow();
+        try {
+            int index = tabelaClientes.getSelectedRow();
 
-        if (index == -1) {
-            JOptionPane.showMessageDialog(null, "Selecione um cliente para excluir.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
+            if (index == -1) {
+                JOptionPane.showMessageDialog(null, "Selecione um cliente para excluir.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Cliente selecionado = tabela.getClientes().get(index);
+
+            List<Cliente> locacoesAtivas = Alugacar.getGerenciadorClientes().buscarClientes(selecionado.getCpf(), null, null, true);
+
+            if (!locacoesAtivas.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Não é permitido excluir clientes com locações ativas.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            Alugacar.getGerenciadorClientes().removerCliente(selecionado);
+            atualizarTabela();
+            JOptionPane.showMessageDialog(null, "Cliente excluído com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-
-        Cliente selecionado = tabela.getClientes().get(index);
-
-        List<Locacao> locacoesAtivas = Alugacar.getGerenciadorVeiculos().buscarLocacoes()
-                .stream().filter(x -> x.getCliente().getCpf().equalsIgnoreCase(selecionado.getCpf()))
-                .collect(Collectors.toList());
-
-        if (!locacoesAtivas.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Não é permitido excluir clientes com locações ativas.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        Alugacar.getGerenciadorClientes().removerClient(selecionado);
-        atualizarTabela();
-        JOptionPane.showMessageDialog(null, "Cliente excluído com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
 
     }//GEN-LAST:event_btnExcluirClienteMouseClicked
 
@@ -563,36 +573,42 @@ public class ClientesView extends javax.swing.JFrame {
     }//GEN-LAST:event_btnCancelarEdicaoMouseClicked
 
     private void btnSalvarEdicaoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnSalvarEdicaoMouseClicked
-        String nome = edicaoNome.getText();
-        String sobrenome = edicaoSobrenome.getText();
-        String rua = edicaoRua.getText();
-        String bairro = edicaoBairro.getText();
-        String numero = edicaoNumero.getText();
-        String estado = edicaoEstado.getSelectedItem().toString();
-        String cidade = edicaoCidade.getText();
+        try {
+            String nome = edicaoNome.getText();
+            String sobrenome = edicaoSobrenome.getText();
+            String rua = edicaoRua.getText();
+            String bairro = edicaoBairro.getText();
+            String numero = edicaoNumero.getText();
+            String estado = edicaoEstado.getSelectedItem().toString();
+            String cidade = edicaoCidade.getText();
 
-        if (!Utils.allFilled(nome, sobrenome, rua, bairro, numero, estado, cidade)) {
-            JOptionPane.showMessageDialog(null, "Preencha todos os campos.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
+            if (!Utils.allFilled(nome, sobrenome, rua, bairro, numero, estado, cidade)) {
+                JOptionPane.showMessageDialog(null, "Preencha todos os campos.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (!Utils.isInteger(numero)) {
+                JOptionPane.showMessageDialog(null, "Número do endereço inválido.", "Aviso!", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            editando.setNome(nome);
+            editando.setSobrenome(sobrenome);
+            editando.setRua(rua);
+            editando.setBairro(bairro);
+            editando.setNumero(Integer.parseInt(numero));
+            editando.setEstado(estado);
+            editando.setCidade(cidade);
+            
+            Alugacar.getGerenciadorClientes().atualizarCliente(editando);
+
+            JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            Utils.clearTextFields(edicaoBairro, edicaoCPF, edicaoRG, edicaoCidade, edicaoNome, edicaoRua, edicaoNumero, edicaoSobrenome);
+            editando = null;
+            jTabbedPane1.setSelectedIndex(1);
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
-
-        if (!Utils.isInteger(numero)) {
-            JOptionPane.showMessageDialog(null, "Número do endereço inválido.", "Aviso!", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        editando.setNome(nome);
-        editando.setSobrenome(sobrenome);
-        editando.setRua(rua);
-        editando.setBairro(bairro);
-        editando.setNumero(Integer.parseInt(numero));
-        editando.setEstado(estado);
-        editando.setCidade(cidade);
-
-        JOptionPane.showMessageDialog(null, "Cliente atualizado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
-        Utils.clearTextFields(edicaoBairro, edicaoCPF, edicaoRG, edicaoCidade, edicaoNome, edicaoRua, edicaoNumero, edicaoSobrenome);
-        editando = null;
-        jTabbedPane1.setSelectedIndex(1);
     }//GEN-LAST:event_btnSalvarEdicaoMouseClicked
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked

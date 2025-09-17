@@ -14,6 +14,7 @@ import com.victorbetoni.alugacar.model.veiculo.Van;
 import com.victorbetoni.alugacar.model.veiculo.VeiculoI;
 import com.victorbetoni.alugacar.views.tables.TabelaClientes;
 import com.victorbetoni.alugacar.views.tables.TabelaVeiculos;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -87,36 +88,32 @@ public class LocarVeiculoView extends javax.swing.JFrame {
     
     public void atualizarVeiculos() {
         tblVeiculos.removeAll();
-        List<VeiculoI> veiculos = Alugacar.getGerenciadorVeiculos().getVeiculos().stream()
-                .filter(x -> {
-                    if(cboTipo.getSelectedIndex() == 0) {
-                        return true;
-                    }
-                    String selectedItem = cboTipo.getSelectedItem().toString();
-                    if(selectedItem.equalsIgnoreCase("Automóvel")) {
-                        return x instanceof Automovel;
-                    }
-                    if(selectedItem.equalsIgnoreCase("Van")) {
-                        return x instanceof Van;
-                    }
-                    return x instanceof Motocicleta;
-                })
-                .filter(x -> cboCategoria.getSelectedIndex() == 0 || x.getCategoria() == Categoria.getByName(cboCategoria.getSelectedItem().toString()))
-                .filter(x -> cboMarca.getSelectedIndex() == 0 || x.getMarca() == Marca.getByName(cboMarca.getSelectedItem().toString()))
-                .filter(x -> x.getEstado() == Estado.DISPONIVEL || x.getEstado() == Estado.NOVO)
-                .collect(Collectors.toList());
+        try {
+            List<VeiculoI> veiculos = Alugacar.getGerenciadorVeiculos().buscarVeiculos(
+                cboTipo.getSelectedIndex() == 0 ? -1 : cboTipo.getSelectedIndex(), 
+                cboMarca.getSelectedIndex() == 0 ? null : Marca.getByName(cboMarca.getSelectedItem().toString()),
+                cboCategoria.getSelectedIndex() == 0 ? null : Categoria.getByName(cboCategoria.getSelectedItem().toString()),
+                null, null, false, false);
         
-        tblVeiculos.setModel(new TabelaVeiculos(veiculos));
+            tblVeiculos.setModel(new TabelaVeiculos(veiculos));
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+        
     }
     
     public void atualizarClientes() {
         tblClientes.removeAll();
-        List<Cliente> clientes = Alugacar.getGerenciadorClientes().getClientes().stream()
-                .filter(x -> x.getCpf().replaceAll("[^a-zA-Z0-9]", "").contains(filtroCPF.getText().replaceAll("[^a-zA-Z0-9]", "")))
-                .filter(x -> x.getNome().contains(filtroNome.getText()))
-                .filter(x -> x.getSobrenome().contains(filtroSobrenome.getText()))
-                .collect(Collectors.toList());
-        tblClientes.setModel(new TabelaClientes(clientes));
+        try {
+            List<Cliente> clientes = Alugacar.getGerenciadorClientes().buscarClientes(
+                filtroCPF.getText().replaceAll("[^a-zA-Z0-9]", ""), 
+                filtroNome.getText(), 
+                filtroSobrenome.getText(),
+                null);
+            tblClientes.setModel(new TabelaClientes(clientes));
+        } catch(Exception ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
 
@@ -173,7 +170,7 @@ public class LocarVeiculoView extends javax.swing.JFrame {
 
         jLabel2.setText("Tipo:");
 
-        cboTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Automóvel", "Motocicleta", "Van" }));
+        cboTipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Todos", "Motocicleta", "Automóvel", "Van" }));
 
         jLabel3.setText("Marca:");
 
@@ -387,43 +384,49 @@ public class LocarVeiculoView extends javax.swing.JFrame {
     }//GEN-LAST:event_fieldDiasLocadosKeyTyped
 
     private void btnLocarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLocarMouseClicked
-        if(veiculo.get() == null) {
-            JOptionPane.showMessageDialog(null, "Selecione um veículo", "AVISO", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if(cliente.get() == null) {
-            JOptionPane.showMessageDialog(null, "Selecione um cliente", "AVISO", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if(!Utils.dataValida(fieldDataLocacao.getText())) {
-            JOptionPane.showMessageDialog(null, "Selecione uma data de locação válida.", "AVISO", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        if(!Utils.isInteger(fieldDiasLocados.getText())) {
-            JOptionPane.showMessageDialog(null, "Digite uma quantidade de dias válida.", "AVISO", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        int dias = Integer.parseInt(fieldDiasLocados.getText());
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        sdf.setLenient(false);
-        
-        Calendar c = null;
-        
         try {
-            Date date = sdf.parse(fieldDataLocacao.getText());
-            c = Calendar.getInstance();
-            c.setTime(date);
+            if(veiculo.get() == null) {
+                JOptionPane.showMessageDialog(null, "Selecione um veículo", "AVISO", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if(cliente.get() == null) {
+                JOptionPane.showMessageDialog(null, "Selecione um cliente", "AVISO", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if(!Utils.dataValida(fieldDataLocacao.getText())) {
+                JOptionPane.showMessageDialog(null, "Selecione uma data de locação válida.", "AVISO", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if(!Utils.isInteger(fieldDiasLocados.getText())) {
+                JOptionPane.showMessageDialog(null, "Digite uma quantidade de dias válida.", "AVISO", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int dias = Integer.parseInt(fieldDiasLocados.getText());
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+            sdf.setLenient(false);
+
+            Calendar c = null;
+
+            try {
+                Date date = sdf.parse(fieldDataLocacao.getText());
+                c = Calendar.getInstance();
+                c.setTime(date);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, e.getMessage(), "ERRO", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Alugacar.getGerenciadorVeiculos().locarVeiculo(veiculo.get(), dias, c, cliente.get());
+
+            JOptionPane.showMessageDialog(null, "Veículo locado com sucesso.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+            atualizarVeiculos();
+            fieldDiasLocados.setText("1");
+            fieldDataLocacao.setText("");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e.getMessage(), "ERRO", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        veiculo.get().locar(dias, c, cliente.get());
-        JOptionPane.showMessageDialog(null, "Veículo locado com sucesso.", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-        atualizarVeiculos();
-        fieldDiasLocados.setText("1");
-        fieldDataLocacao.setText("");
         
     }//GEN-LAST:event_btnLocarMouseClicked
 

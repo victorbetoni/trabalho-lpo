@@ -55,20 +55,11 @@ public class TabelaVeiculoLocado extends AbstractTableModel {
         if(loc == null) {
             return "";
         }
-        String modelo = "";
-        if(columnIndex == 3) {
-            if(veiculo instanceof Van) {
-                modelo = ((Van) veiculo).getModelo().getModelo();
-            } else if (veiculo instanceof Motocicleta) {
-                modelo = ((Motocicleta) veiculo).getModelo().getModelo();
-            } else {
-                modelo = ((Automovel) veiculo).getModelo().getModelo();
-            }
-        }
         
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         String dtLocacao = sdf.format(loc.getData().getTime());
         
+        System.out.println(columnIndex);
         switch (columnIndex) {
             case 0:
                 return loc.getCliente().getNome() + " " + loc.getCliente().getSobrenome();
@@ -77,6 +68,14 @@ public class TabelaVeiculoLocado extends AbstractTableModel {
             case 2:
                 return veiculo.getMarca().getNome();
             case 3:
+                String modelo;
+                if(veiculo instanceof Van) {
+                    modelo = ((Van) veiculo).getModelo().getModelo();
+                } else if (veiculo instanceof Motocicleta) {
+                    modelo = ((Motocicleta) veiculo).getModelo().getModelo();
+                } else {
+                    modelo = ((Automovel) veiculo).getModelo().getModelo();
+                }
                 return modelo;
             case 4:
                 return veiculo.getAno();
