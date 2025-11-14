@@ -279,6 +279,8 @@ public class VeiculosView extends javax.swing.JFrame {
 
             Alugacar.getGerenciadorVeiculos().adicionarVeiculo(veiculo);
             JOptionPane.showMessageDialog(null, "Veículo cadastrado com sucesso.", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            fieldValorCompra.setText("");
+            fieldPlaca.setText("");
         } catch(Exception ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }

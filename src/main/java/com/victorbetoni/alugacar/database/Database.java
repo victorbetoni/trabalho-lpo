@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class Database {
     
-    private static final String CONNECTION_STR = "jdbc:mysql://localhost:3311/java";
+    private static final String CONNECTION_STR = "jdbc:mysql://localhost:3311/alugacar";
     
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(CONNECTION_STR, "root", "admin");
+        return DriverManager.getConnection(CONNECTION_STR, "root", "root");
     }
 }
